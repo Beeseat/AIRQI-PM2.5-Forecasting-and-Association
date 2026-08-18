@@ -1,0 +1,5 @@
+Algorithm,Best Params,Tuning CV RMSE
+Ridge Regression (Baseline),{'alpha': 100.0},22.31474012757
+Decision Tree Regressor,"{'max_depth': 6, 'min_samples_leaf': 10}",25.33180806789605
+Random Forest Regressor,"{'max_depth': 13, 'max_features': 0.5, 'min_samples_leaf': 8, 'n_estimators': 201}",23.040132642373575
+XGBoost Regressor (Redo),"{'colsample_bytree': np.float64(0.7035119926400067), 'learning_rate': np.float64(0.10612789696601767), 'max_depth': 4, 'min_child_weight': 6, 'n_estimators': 203, 'subsample': np.float64(0.8186841117373118)}",23.770044553411555
