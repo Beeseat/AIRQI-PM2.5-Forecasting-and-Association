@@ -36,11 +36,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Cyclical encoding of periodic time features + lag/rolling features
-    of the target variable, as described in the project README.
-    """
+def engineer_features(df: pd.DataFrame, horizon: int = 0) -> pd.DataFrame:
     df = df.copy()
 
     df["dayofweek"] = df["datetime"].dt.dayofweek
@@ -53,11 +49,15 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df["month_sin"] = np.sin(2 * np.pi * df["month"] / 12.0)
     df["month_cos"] = np.cos(2 * np.pi * df["month"] / 12.0)
 
-    # --- Lag & rolling window features (of the target itself) ---
+    # --- Lag & rolling window features (of the target itself, known as of t) ---
     df["lag_1h"] = df["pm2.5"].shift(1)
     df["lag_2h"] = df["pm2.5"].shift(2)
     df["roll_mean_6h"] = df["pm2.5"].shift(1).rolling(window=6).mean()
     df["roll_mean_24h"] = df["pm2.5"].shift(1).rolling(window=24).mean()
+
+    # --- Forecast target: pm2.5 `horizon` extra hours ahead of row t ---
+    if horizon > 0:
+        df["pm2.5"] = df["pm2.5"].shift(-horizon)
 
     # drop raw columns superseded by cyclical encodings / no longer needed
     df = df.drop(columns=["No", "year", "month", "day", "hour", "dayofweek"])
@@ -66,11 +66,10 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def load_and_prepare(path: str):
-    """Full pipeline: raw -> cleaned -> feature engineered -> X, y, datetime."""
+def load_and_prepare(path: str, horizon: int = 0):
     raw = load_raw_data(path)
     cleaned = clean_data(raw)
-    feats = engineer_features(cleaned)
+    feats = engineer_features(cleaned, horizon=horizon)
 
     datetime_col = feats["datetime"]
     y = feats["pm2.5"]
@@ -80,12 +79,6 @@ def load_and_prepare(path: str):
 
 
 def load_for_association(path: str) -> pd.DataFrame:
-    """
-    Lightly-cleaned version of the raw data for association rule mining.
-    Unlike clean_data(), this keeps 'cbwd' as a plain categorical column
-    (not one-hot encoded) since the association module bins it into
-    transaction items itself.
-    """
     df = load_raw_data(path)
     df["pm2.5"] = df["pm2.5"].interpolate(method="linear", limit_direction="both")
     df = df.dropna(subset=["pm2.5"]).reset_index(drop=True)

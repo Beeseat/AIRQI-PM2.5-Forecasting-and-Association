@@ -1,40 +1,12 @@
 """
-association_rules.py
 Association rule mining over discretized Beijing PM2.5 / weather conditions.
-
-Why association rules instead of hour-to-hour classification:
-At hourly resolution PM2.5 barely changes between consecutive readings
-(see feature_importance_shap.png: lag_1h dominates every other feature).
-Framing this as "classify this hour's AQI band" would mostly reduce to a
-trivial persistence problem (predict = last hour's class), which doesn't
-show much beyond what the regression benchmark already shows. Association
-rule mining asks a different question that doesn't care about temporal
-resolution at all: "which combinations of weather/time conditions tend to
-co-occur with a given pollution level?" Each hourly row is one transaction
-in a market-basket sense; no forecasting horizon is involved.
-
-No third-party frequent-itemset library (mlxtend etc.) was available in
-this environment, so Apriori-style candidate generation and rule
-extraction are implemented directly below, following the classic
-level-wise algorithm (Agrawal & Srikant, 1994): build frequent 1-itemsets,
-then repeatedly join + prune to get frequent k-itemsets, then derive
-antecedent -> consequent rules with support / confidence / lift.
 """
 
 import itertools
 import numpy as np
 import pandas as pd
 
-
-# ---------------------------------------------------------------------
-# Step 1: discretize continuous columns into categorical "items"
-# ---------------------------------------------------------------------
-
 def discretize_for_transactions(raw_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Bin the lightly-cleaned raw dataframe (see data_loader.load_for_association)
-    into categorical items suitable for market-basket-style transactions.
-    """
     df = raw_df.copy()
 
     # PM2.5 severity bins (simplified AQI-style bands, ug/m3)
@@ -105,11 +77,6 @@ def build_onehot_transactions(items_df: pd.DataFrame) -> pd.DataFrame:
     onehot = pd.get_dummies(items_df, prefix="", prefix_sep="")
     return onehot.astype(bool)
 
-
-# ---------------------------------------------------------------------
-# Step 2: Apriori frequent itemset mining (implemented from scratch)
-# ---------------------------------------------------------------------
-
 def _generate_candidates(prev_itemsets, k):
     """Join frequent (k-1)-itemsets and prune any candidate whose subsets
     aren't all already frequent (the core Apriori pruning rule)."""
@@ -159,11 +126,6 @@ def apriori(onehot: pd.DataFrame, min_support: float = 0.05, max_len: int = 3) -
     )
     return result.sort_values("support", ascending=False).reset_index(drop=True)
 
-
-# ---------------------------------------------------------------------
-# Step 3: rule generation (support / confidence / lift)
-# ---------------------------------------------------------------------
-
 def generate_rules(frequent_itemsets: pd.DataFrame, min_confidence: float = 0.5) -> pd.DataFrame:
     """Derive antecedent -> consequent rules from frequent itemsets."""
     support_lookup = dict(zip(frequent_itemsets["itemsets"], frequent_itemsets["support"]))
@@ -198,11 +160,6 @@ def generate_rules(frequent_itemsets: pd.DataFrame, min_confidence: float = 0.5)
     if len(rules_df):
         rules_df = rules_df.sort_values("lift", ascending=False).reset_index(drop=True)
     return rules_df
-
-
-# ---------------------------------------------------------------------
-# Full pipeline
-# ---------------------------------------------------------------------
 
 def mine_pollution_rules(raw_df: pd.DataFrame, min_support: float = 0.03,
                           min_confidence: float = 0.5, max_len: int = 3):

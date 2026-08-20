@@ -3,8 +3,8 @@ Ridge Regression (Baseline),Decision Tree Regressor,R2,0.09729081098325901,Ridge
 Ridge Regression (Baseline),Random Forest Regressor,R2,0.013754318006553912,Ridge Regression (Baseline),0.09287530597875165,0.125,False,False
 Ridge Regression (Baseline),XGBoost Regressor (Redo),R2,0.010061513079023832,Ridge Regression (Baseline),0.11949558642534522,0.1875,False,False
 Ridge Regression (Baseline),Decision Tree Regressor,RMSE,-12.346770674369319,Decision Tree Regressor,0.08404317934828859,0.0625,False,False
-Ridge Regression (Baseline),Random Forest Regressor,RMSE,-2.4418354303738696,Random Forest Regressor,0.07454662138485463,0.125,False,False
+Ridge Regression (Baseline),Random Forest Regressor,RMSE,-2.4418354303738687,Random Forest Regressor,0.07454662138485472,0.125,False,False
 Ridge Regression (Baseline),XGBoost Regressor (Redo),RMSE,-1.9040852203677574,XGBoost Regressor (Redo),0.1154282528328756,0.1875,False,False
 Ridge Regression (Baseline),Decision Tree Regressor,MAE,-2.5197607352118436,Decision Tree Regressor,0.045638630480485665,0.0625,True,False
-Ridge Regression (Baseline),Random Forest Regressor,MAE,-0.3515983569435388,Random Forest Regressor,0.22718930295945175,0.3125,False,False
+Ridge Regression (Baseline),Random Forest Regressor,MAE,-0.3515983569435388,Random Forest Regressor,0.22718930295945144,0.3125,False,False
 Ridge Regression (Baseline),XGBoost Regressor (Redo),MAE,-0.38039561577313385,XGBoost Regressor (Redo),0.23693825406546096,0.3125,False,False

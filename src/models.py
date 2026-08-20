@@ -79,12 +79,6 @@ def run_timeseries_cv_benchmark(X: pd.DataFrame, y: pd.Series, n_splits: int = 5
 
 
 def cv_raw_scores_to_df(results: dict) -> pd.DataFrame:
-    """
-    Reshapes the raw per-fold results dict from run_timeseries_cv_benchmark
-    into a tidy long DataFrame (Algorithm, Fold, MAE, RMSE, R2) - convenient
-    for paired significance testing (src/significance.py), which needs each
-    model's fold-1 score paired with every other model's fold-1 score, etc.
-    """
     rows = []
     for name, metrics in results.items():
         n_folds = len(metrics["R2"])

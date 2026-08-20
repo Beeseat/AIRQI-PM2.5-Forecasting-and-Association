@@ -4,12 +4,6 @@ Hyperparameter tuning for the 4-model benchmark, using TimeSeriesSplit
 inside RandomizedSearchCV / GridSearchCV so tuning never leaks future
 rows into a validation fold (the same leakage concern that motivated
 TimeSeriesSplit in models.py's CV benchmark).
-
-IMPORTANT: tune_all_models() must only ever be called on the TRAINING
-portion of a chronological split (i.e. X_train, y_train from
-models.fit_final_models's split), never on the full X, y and never on
-the held-out test set. Otherwise the "final holdout" metrics stop being
-a genuine out-of-sample estimate.
 """
 
 import warnings
