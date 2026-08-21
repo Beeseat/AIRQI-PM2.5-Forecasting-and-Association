@@ -28,6 +28,10 @@ Forecasts were also run at 6-hour and 24-hour horizons, where the previous readi
 
 The gap between models does widen at longer horizons, once the "copy last hour" shortcut stops working.
 
+This isn't unique to this dataset - Zeng et al. (2023, AAAI) found a single linear layer matches or beats far more complex Transformer architectures across nine long-term forecasting benchmarks, since a linear model can capture the trend/periodicity structure many series already have. Same story here, just smaller scale: extra model complexity doesn't help once the underlying relationship is close to linear.
+
+Zeng, A., Chen, M., Zhang, L., & Xu, Q. (2023). Are Transformers Effective for Time Series Forecasting? Proceedings of the AAAI Conference on Artificial Intelligence, 37(9), 11121-11128. https://doi.org/10.1609/aaai.v37i9.26317
+
 ## Part 2: What Drives Pollution Spikes?
 
 Since hour-to-hour prediction plateaus fast, the second half asks a different question: which weather and time conditions co-occur with bad air? This uses association rule mining (Apriori, implemented from scratch) over PM2.5 severity bands and discretized weather features, ranked by **lift** - how much more likely an outcome is given a condition, versus its baseline rate.
@@ -39,6 +43,13 @@ Strong wind is the top predictor of good air across the board. Good-air rules do
 ![Rules for severe pollution](outputs/08_association_rules/association_rules_severe_top_lift.png)
 
 Calm, humid winter conditions are linked to hazardous PM2.5 at roughly **8x** the base rate - Beijing's winter smog pattern: cold, windless air trapping emissions close to the ground.
+
+## Limitations
+
+- **Statistical testing** - the paired significance tests found no model significantly different from Ridge, but with only 5 CV folds this test has low power and can't fully resolve whether the small observed differences are real. Repeated or nested CV with more folds would give a firmer answer.
+- **Tuning budget** - the Random Forest and XGBoost searches use a small number of random-search draws (Random Forest only 2 CV folds), traded off deliberately against runtime. A larger budget might shift the tuned numbers slightly, though the "clustered near R2~0.95" pattern is unlikely to change given how dominant lag_1h is.
+- **Seed sensitivity** - results above use `random_state=42` throughout. Checking 5 seeds (base models, same holdout split) shows Ridge is exactly deterministic (R2 range 0, no stochastic component), Random Forest is very stable (range 0.0005), XGBoost has more spread (range 0.0009), and Decision Tree the most (range 0.0023) - in Decision Tree's case, comparable to some of the model-vs-model gaps in the results table. Full breakdown in `outputs/04_seed_robustness/`.
+- **Association rule redundancy** - some mined rules are close variants of each other, differing by one additional weather condition. A maximal or closed-itemset filter would reduce this.
 
 ## Project Structure
 
