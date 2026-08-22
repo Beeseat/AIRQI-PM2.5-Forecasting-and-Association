@@ -14,9 +14,13 @@ Chen, S. (2015). Beijing PM2.5 Data. UCI Machine Learning Repository. https://do
 
 Four models were benchmarked on 1-hour-ahead PM2.5 forecasts: Ridge as the baseline, Decision Tree, Random Forest, and XGBoost. Validation uses `TimeSeriesSplit` instead of a random shuffle, since shuffling would leak future rows into training on time-series data.
 
-![Model comparison](outputs/02_benchmark/benchmark_holdout_chart.png)
+![Model comparison (5-fold CV)](outputs/02_benchmark/benchmark_cv_chart.png)
 
-The tree-based models edge out Ridge, but barely - paired significance tests (t-test and Wilcoxon) across folds show the difference isn't distinguishable from noise. Hyperparameter tuning doesn't change that.
+On the 5-fold CV benchmark, Ridge comes out ahead of every tree model on R2, RMSE, and MAE - the more expressive tree ensembles don't actually help here. A single chronological holdout split tells a slightly different story, with Random Forest and XGBoost narrowly ahead of Ridge instead:
+
+![Model comparison (holdout)](outputs/02_benchmark/benchmark_holdout_chart.png)
+
+Either way the gaps are small. Paired significance tests (t-test and Wilcoxon) across CV folds confirm none of these differences are distinguishable from noise. Hyperparameter tuning doesn't change that.
 
 SHAP shows why: the previous hour's PM2.5 reading dominates every other feature. Pollution barely moves hour to hour, so there's not much signal left for a more expressive model to use.
 
